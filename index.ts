@@ -38,7 +38,7 @@ app.post('/rephrase', async(req: Request, res: Response) => {
 });
 
 app.get('/', async(req: Request, res: Response) => {
-  res.status(200).json({message: "Alive alive", key: process.env.OPENAI_API_KEY});
+  res.status(200).json({message: "Alive alive", key: process.env.OPENAI_API_KEY ? true: false});
 });
 
 app.listen(port, () => {

@@ -7,7 +7,7 @@ dotenv.config();
 const app: Express = express();
 const port = process.env.PORT;
 app.use(express.json())
-app.use(cors)
+app.use(cors())
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -38,7 +38,7 @@ app.post('/rephrase', async(req: Request, res: Response) => {
 });
 
 app.get('/', async(req: Request, res: Response) => {
-  res.status(200).json({message: "Alive alive"});
+  res.status(200).json({message: "Alive alive", key: process.env.OPENAI_API_KEY});
 });
 
 app.listen(port, () => {

@@ -38,13 +38,35 @@ app.post("/rephrase", async (req: Request, res: Response) => {
   }
 });
 
-app.get("/", async (req: Request, res: Response) => {
-  res
-    .status(200)
-    .json({
-      message: "Alive alive",
-      key: process.env.OPENAI_API_KEY ? true : false,
+app.post("/generateemail", async (req: Request, res: Response) => {
+  const { recipient, description, sender } = req.body;
+  const prompt = `write an email for ${recipient}, ${description}, from ${sender}`;
+  try {
+    const response = await openai.createCompletion({
+      model: "text-davinci-002",
+      prompt: prompt,
+      temperature: 0.2,
+      max_tokens: 1990,
+      top_p: 1,
+      frequency_penalty: 0,
+      presence_penalty: 0,
     });
+    if (!response.data.choices[0].text)
+      return res.status(422).json({ message: "Invalid response" });
+    const responseText = response.data.choices[0].text;
+
+    res.status(200).json({ data: responseText });
+  } catch (err) {
+    console.log("error", err);
+    res.status(422).json(err);
+  }
+});
+
+app.get("/", async (req: Request, res: Response) => {
+  res.status(200).json({
+    message: "Alive alive",
+    key: process.env.OPENAI_API_KEY ? true : false,
+  });
 });
 
 app.listen(port, () => {

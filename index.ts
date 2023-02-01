@@ -39,9 +39,12 @@ app.post("/rephrase", async (req: Request, res: Response) => {
 });
 
 app.post("/generateemail", async (req: Request, res: Response) => {
-  const { recipient, description, sender } = req.body;
-  const prompt = `write an email for ${recipient}, ${description}, from ${sender}`;
+  const { recipient, description, sender, tone, promotion } = req.body;
+  const prompt = `write a ${tone} email for informing ${recipient}, 
+  ${promotion ? `promotes business and want support of ${recipient}` : ""},
+  description of ${description}, from sender named ${sender}`;
   try {
+    console.log("prompt", prompt);
     const response = await openai.createCompletion({
       model: "text-davinci-002",
       prompt: prompt,

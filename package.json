@@ -18,6 +18,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "fakefilter": "^0.1.390",
     "nodemailer": "^6.9.1",
     "openai": "^3.1.0",
     "typescript": "^4.9.4"

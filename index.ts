@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { Configuration, OpenAIApi } from 'openai';
 import cors from 'cors';
 import sendMessage from './utils/sendMessage';
+import { isFakeEmail } from 'fakefilter';
 dotenv.config();
 
 const app: Express = express();
@@ -66,17 +67,37 @@ app.post('/generateemail', async (req: Request, res: Response) => {
   }
 });
 
+const checkEmails = async (emails: any) => {
+  console.log('emails', emails);
+  const results = await Promise.all(
+    await emails?.map(async (email: string) => isFakeEmail(email))
+  );
+  const emailIdx = results.filter((el) => el);
+  const filteredEmails = emailIdx.filter((el) => {
+    return el !== null && el !== undefined;
+  });
+  return [...new Set(filteredEmails)];
+};
+
 app.post('/sendmsg', async (req: Request, res: Response) => {
-  const { html } = req.body;
+  const { html, emails } = req.body;
   try {
     const decodeMsg = atob(html);
     // console.log('decodeMsg', decodeMsg);
+    const emailErr = await checkEmails(emails);
+    if (emailErr.length) {
+      return res
+        .status(422)
+        .json({ message: 'Found invalid email', data: emailErr });
+    }
 
     const options = {
-      to: 'blu3fire89@gmail.com',
+      to: emails,
       subject: 'Template message',
       html: decodeMsg,
     };
+
+    // return res.json('taguro');
 
     const sendMsg = await sendMessage(options);
 

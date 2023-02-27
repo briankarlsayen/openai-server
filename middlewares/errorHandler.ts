@@ -43,5 +43,3 @@ export const errorHandler = (
     message: error.message || 'Server Error',
   });
 };
-
-// module.exports = { errorHandler, ErrorResponse };

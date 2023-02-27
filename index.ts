@@ -7,6 +7,7 @@ import { errorHandler } from './middlewares/errorHandler';
 
 const app: Express = express();
 const port = process.env.PORT;
+const key = process.env.OPENAI_API_KEY ? true : false;
 app.use(express.json());
 app.use(cors());
 
@@ -14,7 +15,7 @@ app.use(cors());
 app.get('/', async (_req: Request, res: Response) => {
   res.status(200).json({
     message: 'Alive alive',
-    key: process.env.OPENAI_API_KEY ? true : false,
+    key,
   });
 });
 app.use('/api', routes);

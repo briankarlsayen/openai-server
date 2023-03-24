@@ -1,30 +1,27 @@
 import crypto from 'crypto';
-// import CryptoJS from 'crypto-js';
-
-// interface EncryptionOpts {
-
-// }
 
 interface IEncrpt {
   data: string;
-  type: string; // type of encryption
+  type: EEncryptType;
   key: string;
 }
 
 interface PEncrypt {
   data: string;
-  type: string; // type of encryption
+  type: EEncryptType;
   key: string;
   convertedKey: string;
 }
 
-const password = 'Your_Password_Here';
+interface FEncrypt {
+  (params: IEncrpt): string | Error;
+}
+
 const IV_SIZE = 16;
 const KEY_SIZE = 24;
 
 const rsaEncryption = (props: PEncrypt) => {
   try {
-    console.log('rsa');
     const buffer = Buffer.from(props.data, 'utf8');
     const result = crypto.publicEncrypt(
       {
@@ -37,13 +34,12 @@ const rsaEncryption = (props: PEncrypt) => {
     return result.toString('base64');
   } catch (err) {
     console.log('Invalid encryption key');
-    // return props.data;
+    return '';
   }
 };
 
 const rsaDecryption = (props: PEncrypt) => {
   try {
-    if (!props) return null;
     const buffer = Buffer.from(props.data, 'base64');
     const result = crypto.privateDecrypt(
       {
@@ -56,6 +52,7 @@ const rsaDecryption = (props: PEncrypt) => {
     return result.toString('utf-8');
   } catch (err) {
     console.log('Invalid decryption key');
+    return '';
   }
 };
 
@@ -67,7 +64,10 @@ const aesEncryption = (props: IEncrpt) => {
     var encrypted =
       cipher.update(props.data, 'utf8', 'hex') + cipher.final('hex');
     return iv.toString('hex') + ':' + encrypted;
-  } catch (err) {}
+  } catch (err) {
+    console.log('Invalid encryption key');
+    return '';
+  }
 };
 
 const aesDecryption = (props: IEncrpt) => {
@@ -80,10 +80,13 @@ const aesDecryption = (props: IEncrpt) => {
     let decrypted = decipher.update(encryptedText);
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted.toString();
-  } catch (err) {}
+  } catch (err) {
+    console.log('Invalid decryption key');
+    return '';
+  }
 };
 
-export const encrypt = (props: IEncrpt) => {
+export const encrypt: FEncrypt = (props) => {
   try {
     switch (props.type) {
       case 'RSA':
@@ -91,13 +94,16 @@ export const encrypt = (props: IEncrpt) => {
         return rsaEncryption({ ...props, convertedKey });
       case 'AES':
         return aesEncryption(props);
+      default:
+        return new Error('Invalid encryption type');
     }
   } catch (err) {
     console.log('Encryption failed', err);
+    return new Error('Invalid encryption type');
   }
 };
 
-export const decrypt = (props: IEncrpt) => {
+export const decrypt: FEncrypt = (props) => {
   try {
     switch (props.type) {
       case 'RSA':
@@ -105,8 +111,11 @@ export const decrypt = (props: IEncrpt) => {
         return rsaDecryption({ ...props, convertedKey });
       case 'AES':
         return aesDecryption(props);
+      default:
+        return new Error('Invalid encryption type');
     }
   } catch (err) {
     console.log('Encryption failed', err);
+    return new Error('Invalid encryption type');
   }
 };
